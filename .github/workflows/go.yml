@@ -25,4 +25,4 @@ jobs:
       run: go get
       
     - name: Build
-      run: go build *.go
+      run: go build cmd/main.go
