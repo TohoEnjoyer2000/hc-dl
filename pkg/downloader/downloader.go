@@ -10,7 +10,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/TohoEnjoyer2000/hc-dl/pkg/utils"
+	"github.com/TohoEnjoyer2000/hc-dl/internal"
 	"github.com/schollz/progressbar/v3"
 )
 
@@ -49,7 +49,7 @@ func Run(
 }
 
 func download(galleryURL, output string) error {
-	res, err := utils.PerformHttpGet(http.DefaultClient, galleryURL)
+	res, err := internal.NewHttpGet(http.DefaultClient, galleryURL)
 	if err != nil {
 		return err
 	}

@@ -6,46 +6,63 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 
 	"github.com/TohoEnjoyer2000/hc-dl/pkg/downloader"
-	"github.com/TohoEnjoyer2000/hc-dl/pkg/utils"
+	"github.com/TohoEnjoyer2000/hc-dl/pkg/scraper"
 	"github.com/schollz/progressbar/v3"
 )
 
 var (
 	workingSet  []string
 	galleryURL  string
+	listFile    string
 	concurrency int
 )
 
 func init() {
 	flag.StringVar(&galleryURL, "u", "", "hentai-cosplay.com url")
+	flag.StringVar(&listFile, "a", "", "consume all url from file")
 	flag.IntVar(&concurrency, "c", runtime.NumCPU(), "concurrent downloads")
 	flag.Parse()
 }
 
 func main() {
+	info()
+
+	if listFile == "" {
+		run(galleryURL)
+		return
+	}
+
+	file, err := os.ReadFile(listFile)
+	if err != nil {
+		return
+	}
+
+	for _, line := range strings.Split(string(file), "\n") {
+		run(line)
+	}
+}
+
+func run(galleryURL string) {
 	if galleryURL == "" {
 		fmt.Println("Please provide a valid URL")
 		os.Exit(1)
 	}
 
-	splash()
-
-	pages, doc, err := utils.ExtractPaginatorData(galleryURL)
+	pages, doc, err := scraper.ExtractPaginatorData(galleryURL)
 	if err != nil {
 		fmt.Println("Please provide a valid URL")
 		os.Exit(1)
 	}
 
-	fmt.Println("Downloading", len(*pages), "pages.")
-
-	images := utils.ExtractImagesFromRoot(doc)
+	images := scraper.ExtractImagesFromRoot(doc)
 
 	workingSet = append(workingSet, *images...)
 
 	for _, page := range *pages {
-		images, err := utils.ExtractImagesFromPage(page)
+		images, err := scraper.ExtractImagesFromPage(page)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -64,7 +81,7 @@ func main() {
 		progressbar.OptionSetDescription(
 			fmt.Sprintf(
 				"[bold][cyan][Download][reset] %s",
-				utils.DetectName(galleryURL),
+				scraper.DetectName(galleryURL),
 			),
 		),
 		progressbar.OptionSetTheme(progressbar.Theme{
@@ -76,17 +93,17 @@ func main() {
 		}),
 	)
 
-	dirname := filepath.Join(".", utils.DetectName(galleryURL))
+	dirname := filepath.Join(".", scraper.DetectName(galleryURL))
 
 	downloader.Run(workingSet, dirname, concurrency, bar)
 
 	fmt.Println("")
 }
 
-func splash() {
+func info() {
 	fmt.Println("HC-dl")
 	fmt.Println("")
 	fmt.Println("hentai-cosplay.com / hentai-img.com dowloader")
-	fmt.Println("v0303-2023-1")
+	fmt.Println("v1503-2024")
 	fmt.Println("")
 }
