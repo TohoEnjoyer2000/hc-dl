@@ -88,11 +88,11 @@ func ExtractPaginatorData(galleryURL string) (*[]string, *goquery.Document, erro
 		Find("a").
 		FilterFunction(func(i int, s *goquery.Selection) bool {
 			title := s.Text()
-			i, err := strconv.Atoi(title)
+			_i, err := strconv.Atoi(title)
 			if err != nil {
 				return false
 			}
-			return i > 0
+			return _i > 0
 		})
 
 	bar := progressbar.NewOptions(
