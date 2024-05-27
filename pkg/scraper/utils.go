@@ -115,6 +115,8 @@ func ExtractPaginatorData(galleryURL string) (*[]string, *goquery.Document, erro
 		}),
 	)
 
+	bar.Add(1)
+
 	s.Each(func(i int, s *goquery.Selection) {
 		u, ok := (s.Attr("href"))
 		if !ok {
